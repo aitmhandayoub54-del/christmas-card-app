@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Christmas Gift Card Generator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cairo:wght@400;600;700;800&family=Cinzel:wght@600;700&family=Great+Vibes&family=Inter:wght@400;600;700&family=Mountains+of+Christmas:wght@700&family=Playfair+Display:ital,wght@0,600;1,400&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <!-- html2canvas Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0b1d19;
+            --bg-secondary: #122b25;
+            --accent-red: #c0392b;
+            --accent-red-hover: #e74c3c;
+            --accent-gold: #f39c12;
+            --accent-gold-light: #f1c40f;
+            --text-main: #f8f9fa;
+            --text-muted: #a3b8b0;
+            --card-border: rgba(243, 156, 18, 0.25);
+            --font-family: 'Cairo', sans-serif;
+        }
+
+        [dir="ltr"] {
+            --font-family: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #snow-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        header {
+            background: rgba(18, 43, 37, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 1rem 2rem;
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+
+        .lang-selector {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px;
+            border-radius: 30px;
+            border: 1px solid var(--card-border);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .lang-btn.active {
+            background: var(--accent-red);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(192, 57, 43, 0.4);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 2rem;
+            position: relative;
+            z-index: 5;
+            flex: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .controls-panel {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            height: fit-content;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+            border-bottom: 1px dashed rgba(243, 156, 18, 0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.15);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .template-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .pill-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .pill-btn:hover {
+            background: rgba(243, 156, 18, 0.15);
+            border-color: var(--accent-gold);
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+        }
+
+        .color-option {
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.05);
+        }
+
+        .color-option.selected {
+            border-color: #fff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #444;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-red);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-red), #962d22);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.9rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(192, 57, 43, 0.3);
+            font-family: inherit;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--accent-red-hover), #b03a2e);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(192, 57, 43, 0.4);
+        }
+
+        .preview-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .card-wrapper {
+            width: 100%;
+            max-width: 650px;
+            aspect-ratio: 4/3;
+            perspective: 1000px;
+        }
+
+        .card-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            transition: all 0.4s ease;
+            border: 2px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .theme-classic { background: linear-gradient(135deg, #1b382b 0%, #0d1f18 100%); color: #f8f9fa; }
+        .theme-red { background: linear-gradient(135deg, #8b0000 0%, #4a0000 100%); color: #ffffff; }
+        .theme-gold { background: linear-gradient(135deg, #2c2206 0%, #171102 100%); color: #f9f1d8; }
+        .theme-midnight { background: linear-gradient(135deg, #0f172a 0%, #020617 100%); color: #f1f5f9; }
+        .theme-nordic { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #e2e8f0; }
+
+        .card-border-frame {
+            position: absolute;
+            top: 15px; left: 15px; right: 15px; bottom: 15px;
+            border: 1px solid rgba(243, 156, 18, 0.4);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        .card-border-frame::before {
+            content: '';
+            position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px;
+            border: 1px dashed rgba(243, 156, 18, 0.25);
+            border-radius: 8px;
+        }
+
+        .card-ornament {
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .ornament-tl { top: 25px; left: 25px; }
+        .ornament-tr { top: 25px; right: 25px; }
+        .ornament-bl { bottom: 25px; left: 25px; }
+        .ornament-br { bottom: 25px; right: 25px; }
+
+        .card-header-art { text-align: center; position: relative; z-index: 2; }
+        .card-icon { font-size: 3rem; margin-bottom: 0.25rem; display: inline-block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+        .card-title { font-size: 1.8rem; font-weight: 800; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); }
+
+        .card-body { position: relative; z-index: 2; text-align: center; margin: 1.5rem 0; display: flex; flex-direction: column; justify-content: center; flex: 1; }
+        .recipient-name { font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; color: #ffffff; }
+        .card-message-text { font-size: 1.1rem; line-height: 1.7; font-weight: 400; opacity: 0.95; max-width: 90%; margin: 0 auto; white-space: pre-wrap; }
+
+        .card-footer-art { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1rem; }
+        .sender-name { font-size: 1rem; font-weight: 600; color: var(--accent-gold-light); }
+        .card-date { font-size: 0.85rem; opacity: 0.6; }
+
+        .font-cairo { font-family: 'Cairo', sans-serif; }
+        .font-tajawal { font-family: 'Tajawal', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-script { font-family: 'Great Vibes', cursive; }
+        .font-christmas { font-family: 'Mountains of Christmas', cursive; }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+
+        footer { text-align: center; padding: 1.5rem; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: auto; position: relative; z-index: 10; }
+    </style>
+</head>
+<body>
+
+    <canvas id="snow-canvas"></canvas>
+
+    <header>
+        <div class="logo">
+            <span class="logo-icon">🎄</span>
+            <span id="lbl-logo">صانع بطاقات الكريسماس</span>
+        </div>
+        <div class="lang-selector">
+            <button class="lang-btn active" id="btn-ar" onclick="changeLanguage('ar')">العربية 🇦🇪</button>
+            <button class="lang-btn" id="btn-en" onclick="changeLanguage('en')">English 🇬🇧</button>
+            <button class="lang-btn" id="btn-fr" onclick="changeLanguage('fr')">Français 🇫🇷</button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="controls-panel">
+            <div class="form-group">
+                <div class="section-title">
+                    <span>✍️</span> <span id="lbl-details">تفاصيل الرسالة</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-recipient">إلى (اسم المستلم)</label>
+                <input type="text" id="recipient-input" oninput="updateCardText()">
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-sender">من (اسمك)</label>
+                <input type="text" id="sender-input" oninput="updateCardText()">
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-message">نص المعايدة</label>
+                <textarea id="message-input" oninput="updateCardText()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-templates">قوالب معايدة جاهزة</label>
+                <div class="template-pills" id="templates-container"></div>
+            </div>
+
+            <div class="form-group">
+                <div class="section-title">
+                    <span>🎨</span> <span id="lbl-design">خيارات التصميم</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-theme">النمط والألوان</label>
+                <div class="color-grid">
+                    <div class="color-option selected" style="background: linear-gradient(135deg, #1b382b, #0d1f18);" onclick="setTheme('theme-classic', this)"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #8b0000, #4a0000);" onclick="setTheme('theme-red', this)"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #2c2206, #171102);" onclick="setTheme('theme-gold', this)"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #0f172a, #020617);" onclick="setTheme('theme-midnight', this)"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #1e293b, #0f172a);" onclick="setTheme('theme-nordic', this)"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-font">خط البطاقة</label>
+                <select id="font-select" onchange="updateCardFont()"></select>
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-icon">الأيقونة الرئيسية</label>
+                <select id="icon-select" onchange="updateCardText()"></select>
+            </div>
+
+            <div class="toggle-container">
+                <label id="lbl-snow" style="margin:0; cursor:pointer;">تأثير تساقط الثلج</label>
+                <label class="switch">
+                    <input type="checkbox" id="snow-toggle" checked onchange="toggleSnow(this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <button class="btn-primary" onclick="downloadCard()">
+                <span>📥</span> <span id="lbl-download">تنزيل البطاقة (PNG)</span>
+            </button>
+        </div>
+
+        <div class="preview-panel">
+            <div class="card-wrapper">
+                <div class="card-canvas theme-classic" id="gift-card">
+                    <div class="card-border-frame"></div>
+                    <div class="card-ornament ornament-tl">❄</div>
+                    <div class="card-ornament ornament-tr">❄</div>
+                    <div class="card-ornament ornament-bl">❄</div>
+                    <div class="card-ornament ornament-br">❄</div>
+
+                    <div class="card-header-art">
+                        <div class="card-icon" id="card-icon-display">🎄</div>
+                        <div class="card-title" id="card-title-display">Merry Christmas</div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="recipient-name" id="card-recipient-display">إلى: عزيزي</div>
+                        <div class="card-message-text" id="card-message-display">أتمنى لك كريسماس مجيداً وسنة جديدة مليئة بالفرح والسعادة!</div>
+                    </div>
+
+                    <div class="card-footer-art">
+                        <div class="sender-name" id="card-sender-display">من: صديقك</div>
+                        <div class="card-date" id="card-date-display">2026</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p id="lbl-footer">Christmas & New Year Gift Card Builder © 2026 - جميع الحقوق محفوظة</p>
+    </footer>
+
+    <script>
+        const translations = {
+            ar: {
+                dir: "rtl",
+                title: "صانع بطاقات الكريسماس",
+                logo: "صانع بطاقات الكريسماس",
+                details: "تفاصيل الرسالة",
+                recipient: "إلى (اسم المستلم)",
+                recipientPh: "مثال: سارة",
+                recipientDef: "عزيزي/عزيزتي",
+                sender: "من (اسمك)",
+                senderPh: "مثال: أحمد",
+                senderDef: "صديقك",
+                message: "نص المعايدة",
+                templates: "قوالب معايدة جاهزة",
+                design: "خيارات التصميم",
+                theme: "النمط والألوان",
+                font: "خط البطاقة",
+                icon: "الأيقونة الرئيسية",
+                snow: "تأثير تساقط الثلج",
+                download: "تنزيل البطاقة (PNG)",
+                footer: "Christmas & New Year Gift Card Builder © 2026 - جميع الحقوق محفوظة",
+                cardTitle: "Merry Christmas",
+                toPrefix: "إلى: ",
+                fromPrefix: "من: ",
+                fonts: [
+                    { value: "font-cairo", text: "القاهرة (Cairo)" },
+                    { value: "font-tajawal", text: "تاجوال (Tajawal)" },
+                    { value: "font-serif", text: "كلاسيكي (Serif)" }
+                ],
+                icons: [
+                    { value: "🎄", text: "🎄 شجرة الكريسماس" },
+                    { value: "🎅", text: "🎅 بابا نويل" },
+                    { value: "🎁", text: "🎁 هدية الميلاد" },
+                    { value: "❄️", text: "❄️ ندفة ثلج" },
+                    { value: "⭐", text: "⭐ نجمة ذهبية" },
+                    { value: "🔔", text: "🔔 أجراس الميلاد" }
+                ],
+                templatesList: [
+                    { title: "عامة", text: "أتمنى لك كريسماس مجيداً وسنة جديدة مليئة بالسلام والأمل والتوفيق!" },
+                    { title: "دافئة", text: "في هذا الموسم الدافئ، أرسل لك أطيب الأمنيات بقلب ملؤه المحبة والمودة. كريسماس سعيد!" },
+                    { title: "أصدقاء", text: "إلى أغلى الأصدقاء، شكراً لكونك جزءاً رائعاً من حياتي. أتمنى لك عيد كريسماس ساحر!" }
+                ]
+            },
+            en: {
+                dir: "ltr",
+                title: "Christmas Gift Card Generator",
+                logo: "Christmas Gift Cards",
+                details: "Message Details",
+                recipient: "To (Recipient Name)",
+                recipientPh: "e.g. Sarah",
+                recipientDef: "My Dear",
+                sender: "From (Your Name)",
+                senderPh: "e.g. Alex",
+                senderDef: "Your Friend",
+                message: "Greeting Message",
+                templates: "Ready Templates",
+                design: "Design Options",
+                theme: "Theme & Colors",
+                font: "Card Font",
+                icon: "Main Icon",
+                snow: "Snowfall Effect",
+                download: "Download Card (PNG)",
+                footer: "Christmas & New Year Gift Card Builder © 2026 - All Rights Reserved",
+                cardTitle: "Merry Christmas",
+                toPrefix: "To: ",
+                fromPrefix: "From: ",
+                fonts: [
+                    { value: "font-christmas", text: "Christmas Script" },
+                    { value: "font-script", text: "Elegant Calligraphy" },
+                    { value: "font-cinzel", text: "Cinzel Classic" }
+                ],
+                icons: [
+                    { value: "🎄", text: "🎄 Christmas Tree" },
+                    { value: "🎅", text: "🎅 Santa Claus" },
+                    { value: "🎁", text: "🎁 Christmas Gift" },
+                    { value: "❄️", text: "❄️ Snowflake" },
+                    { value: "⭐", text: "⭐ Golden Star" },
+                    { value: "🔔", text: "🔔 Christmas Bells" }
+                ],
+                templatesList: [
+                    { title: "General", text: "Wishing you a Merry Christmas and a Happy New Year filled with joy, peace, and prosperity!" },
+                    { title: "Warmth", text: "May your holiday season be blessed with warmth, laughter, and unforgettable moments." },
+                    { title: "Friendship", text: "To a wonderful friend, thank you for being a light in my life. Have a magical Christmas!" }
+                ]
+            },
+            fr: {
+                dir: "ltr",
+                title: "Créateur de Cartes de Noël",
+                logo: "Cartes de Noël",
+                details: "Détails du Message",
+                recipient: "Pour (Nom du Destinataire)",
+                recipientPh: "ex: Sophie",
+                recipientDef: "Mon Cher/Ma Chère",
+                sender: "De (Votre Nom)",
+                senderPh: "ex: Thomas",
+                senderDef: "Ton Ami(e)",
+                message: "Message de Vœux",
+                templates: "Modèles Prêts",
+                design: "Options de Design",
+                theme: "Thème et Couleurs",
+                font: "Police de la Carte",
+                icon: "Icône Principale",
+                snow: "Effet Chute de Neige",
+                download: "Télécharger la Carte (PNG)",
+                footer: "Christmas & New Year Gift Card Builder © 2026 - Tous droits réservés",
+                cardTitle: "Joyeux Noël",
+                toPrefix: "Pour: ",
+                fromPrefix: "De: ",
+                fonts: [
+                    { value: "font-script", text: "Calligraphie Élégante" },
+                    { value: "font-serif", text: "Classique (Serif)" },
+                    { value: "font-cinzel", text: "Cinzel Moderne" }
+                ],
+                icons: [
+                    { value: "🎄", text: "🎄 Sapin de Noël" },
+                    { value: "🎅", text: "🎅 Père Noël" },
+                    { value: "🎁", text: "🎁 Cadeau de Noël" },
+                    { value: "❄️", text: "❄️ Flocon de neige" },
+                    { value: "⭐", text: "⭐ Étoile dorée" },
+                    { value: "🔔", text: "🔔 Cloches de Noël" }
+                ],
+                templatesList: [
+                    { title: "Général", text: "Je vous souhaite un Joyeux Noël et une Bonne Année pleine de bonheur, de paix et de succès !" },
+                    { title: "Chaleureux", text: "Que cette période de fêtes vous apporte chaleur, rires et moments inoubliables. Joyeux Noël !" },
+                    { title: "Amitié", text: "À un(e) ami(e) formidable, merci d'être une lumière dans ma vie. Passe un Noël magique !" }
+                ]
+            }
+        };
+
+        let currentLang = 'ar';
+        let currentTheme = 'theme-classic';
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+
+            const htmlRoot = document.getElementById('html-root');
+            htmlRoot.setAttribute('lang', lang);
+            htmlRoot.setAttribute('dir', t.dir);
+
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${lang}`).classList.add('active');
+
+            // Static labels
+            document.getElementById('page-title').innerText = t.title;
+            document.getElementById('lbl-logo').innerText = t.logo;
+            document.getElementById('lbl-details').innerText = t.details;
+            document.getElementById('lbl-recipient').innerText = t.recipient;
+            document.getElementById('lbl-sender').innerText = t.sender;
+            document.getElementById('lbl-message').innerText = t.message;
+            document.getElementById('lbl-templates').innerText = t.templates;
+            document.getElementById('lbl-design').innerText = t.design;
+            document.getElementById('lbl-theme').innerText = t.theme;
+            document.getElementById('lbl-font').innerText = t.font;
+            document.getElementById('lbl-icon').innerText = t.icon;
+            document.getElementById('lbl-snow').innerText = t.snow;
+            document.getElementById('lbl-download').innerText = t.download;
+            document.getElementById('lbl-footer').innerText = t.footer;
+
+            // Placeholders
+            document.getElementById('recipient-input').placeholder = t.recipientPh;
+            document.getElementById('sender-input').placeholder = t.senderPh;
+
+            // Populate fonts dropdown
+            const fontSelect = document.getElementById('font-select');
+            fontSelect.innerHTML = '';
+            t.fonts.forEach(f => {
+                const opt = document.createElement('option');
+                opt.value = f.value;
+                opt.innerText = f.text;
+                fontSelect.appendChild(opt);
+            });
+
+            // Populate icons dropdown
+            const iconSelect = document.getElementById('icon-select');
+            const currentIcon = iconSelect.value;
+            iconSelect.innerHTML = '';
+            t.icons.forEach(ic => {
+                const opt = document.createElement('option');
+                opt.value = ic.value;
+                opt.innerText = ic.text;
+                iconSelect.appendChild(opt);
+            });
+            if(iconSelect.querySelector(`[value="${currentIcon}"]`)) {
+                iconSelect.value = currentIcon;
+            }
+
+            // Template pills
+            const tmplContainer = document.getElementById('templates-container');
+            tmplContainer.innerHTML = '';
+            t.templatesList.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = 'pill-btn';
+                btn.innerText = item.title;
+                btn.onclick = () => {
+                    document.getElementById('message-input').value = item.text;
+                    updateCardText();
+                };
+                tmplContainer.appendChild(btn);
+            });
+
+            document.getElementById('message-input').value = t.templatesList[0].text;
+
+            updateCardFont();
+            updateCardText();
+        }
+
+        function updateCardText() {
+            const t = translations[currentLang];
+            const recipient = document.getElementById('recipient-input').value.trim() || t.recipientDef;
+            const sender = document.getElementById('sender-input').value.trim() || t.senderDef;
+            const message = document.getElementById('message-input').value || t.templatesList[0].text;
+            const icon = document.getElementById('icon-select').value;
+
+            document.getElementById('card-icon-display').innerText = icon;
+            document.getElementById('card-title-display').innerText = t.cardTitle;
+            document.getElementById('card-recipient-display').innerText = t.toPrefix + recipient;
+            document.getElementById('card-message-display').innerText = message;
+            document.getElementById('card-sender-display').innerText = t.fromPrefix + sender;
+            document.getElementById('card-date-display').innerText = new Date().getFullYear();
+        }
+
+        function setTheme(themeClass, el) {
+            currentTheme = themeClass;
+            updateCardFont();
+            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+            if(el) el.classList.add('selected');
+        }
+
+        function updateCardFont() {
+            const fontClass = document.getElementById('font-select').value;
+            const card = document.getElementById('gift-card');
+            card.className = `card-canvas ${currentTheme} ${fontClass}`;
+        }
+
+        function downloadCard() {
+            const card = document.getElementById('gift-card');
+            html2canvas(card, {
+                scale: 3,
+                useCORS: true,
+                backgroundColor: null
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Christmas-Card-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // Snowfall Canvas
+        let snowActive = true;
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const flakes = Array.from({ length: 70 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: Math.random() * 3 + 1,
+            density: Math.random() * 1 + 0.5
+        }));
+
+        function drawSnow() {
+            if (!snowActive) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.beginPath();
+            for (let f of flakes) {
+                ctx.moveTo(f.x, f.y);
+                ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2, true);
+            }
+            ctx.fill();
+            moveSnow();
+            requestAnimationFrame(drawSnow);
+        }
+
+        function moveSnow() {
+            for (let f of flakes) {
+                f.y += Math.pow(f.density, 2) + 1;
+                f.x += Math.sin(f.y / 30);
+                if (f.y > canvas.height) {
+                    f.y = -10;
+                    f.x = Math.random() * canvas.width;
+                }
+            }
+        }
+
+        function toggleSnow(enabled) {
+            snowActive = enabled;
+            if (enabled) drawSnow();
+        }
+
+        window.onload = function() {
+            changeLanguage('ar');
+            drawSnow();
+        };
+    </script>
+</body>
+</html>
